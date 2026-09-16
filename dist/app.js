@@ -63,6 +63,10 @@ tiles.forEach((el,i)=>{
   el.querySelector('.edit').addEventListener('click',()=>{lastTap=-Infinity;if(editing===i)saveInlineEditor(i);else openInlineEditor(i)});
   el.querySelector('.inline-editor').addEventListener('submit',e=>{e.preventDefault();saveInlineEditor(i)});
   el.querySelectorAll('.inline-editor input').forEach(input=>{
+    // Safari can restore an old selection on touch focus; leave only a caret.
+    input.addEventListener('touchend',()=>setTimeout(()=>{
+      if(document.activeElement===input){const end=input.selectionEnd??input.value.length;input.setSelectionRange(end,end)}
+    },0),{passive:true});
     input.addEventListener('input',()=>{el.querySelectorAll('.inline-editor input').forEach(field=>field.setCustomValidity(''));input.style.width=`${Math.max(input.value.length,1)}ch`});
     input.addEventListener('keydown',e=>{
       if(e.key==='Escape'){e.preventDefault();closeInlineEditor(i);if(timers[i].state==='done')reset(i);el.querySelector('.edit').focus()}
@@ -71,25 +75,32 @@ tiles.forEach((el,i)=>{
   });
   render(i);
 });
-// A tap outside the active fields commits the edit and is consumed, so it
-// cannot also start a timer, toggle sound, or open another editor.
-let saveTapPending=false;
-document.addEventListener('pointerdown',event=>{
-  saveTapPending=false;
-  if(editing===null)return;
-  const fields=tiles[editing].querySelector('.inline-time');
-  if(fields.contains(event.target))return;
-  saveTapPending=true;
+// Commit only from the pane being edited. Other panes keep their controls.
+function isEditPaneBackground(target){
+  return editing!==null&&tiles[editing].contains(target)&&!target.closest('.inline-time input');
+}
+function commitPaneTap(event){
   event.preventDefault();
   event.stopImmediatePropagation();
   saveInlineEditor(editing);
-},true);
+}
 document.addEventListener('click',event=>{
-  if(!saveTapPending)return;
-  saveTapPending=false;
-  event.preventDefault();
-  event.stopImmediatePropagation();
+  if(isEditPaneBackground(event.target))commitPaneTap(event);
 },true);
+// iOS may not synthesize clicks on the blank area of a form. Handle the
+// completed touch directly and cancel its synthetic click before changing DOM.
+let editTouchStart=null;
+document.addEventListener('touchstart',event=>{
+  editTouchStart=event.touches.length===1?{x:event.touches[0].clientX,y:event.touches[0].clientY}:null;
+},{capture:true,passive:true});
+document.addEventListener('touchend',event=>{
+  const start=editTouchStart;editTouchStart=null;
+  if(!start||event.changedTouches.length!==1||!isEditPaneBackground(event.target))return;
+  const touch=event.changedTouches[0];
+  if(Math.hypot(touch.clientX-start.x,touch.clientY-start.y)>12)return;
+  commitPaneTap(event);
+},{capture:true,passive:false});
+document.addEventListener('touchcancel',()=>{editTouchStart=null},{passive:true});
 function updateSound(){$('#sound').innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 5 7 9H4v6h3l5 4Z"/>${sound?'<path d="M17 9a5 5 0 0 1 0 6"/>':'<path d="m17 10 4 4m0-4-4 4"/>'}</svg>`;$('#sound').setAttribute('aria-pressed',String(sound));$('#sound').setAttribute('aria-label',`Sound ${sound?'on':'off'}`)}
 $('#sound').onclick=()=>{sound=!sound;unlockAudio();updateSound();try{localStorage.setItem('tap-sound',sound?'on':'off')}catch{}};updateSound();
 document.addEventListener('keydown',e=>{if(editing!==null||e.repeat||e.ctrlKey||e.metaKey||e.altKey||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;if(/^[123]$/.test(e.key)){e.preventDefault();toggle(Number(e.key)-1)}});
