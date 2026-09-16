@@ -63,10 +63,11 @@ tiles.forEach((el,i)=>{
   el.querySelector('.edit').addEventListener('click',()=>{lastTap=-Infinity;if(editing===i)saveInlineEditor(i);else openInlineEditor(i)});
   el.querySelector('.inline-editor').addEventListener('submit',e=>{e.preventDefault();saveInlineEditor(i)});
   el.querySelectorAll('.inline-editor input').forEach(input=>{
-    // Safari can restore an old selection on touch focus; leave only a caret.
-    input.addEventListener('touchend',()=>setTimeout(()=>{
-      if(document.activeElement===input){const end=input.selectionEnd??input.value.length;input.setSelectionRange(end,end)}
-    },0),{passive:true});
+    // Replace the existing digits on a single tap, even at maxlength.
+    // The selection remains visually transparent via ::selection styling.
+    const selectDigits=()=>input.setSelectionRange(0,input.value.length);
+    input.addEventListener('focus',selectDigits);
+    input.addEventListener('click',selectDigits);
     input.addEventListener('input',()=>{el.querySelectorAll('.inline-editor input').forEach(field=>field.setCustomValidity(''));input.style.width=`${Math.max(input.value.length,1)}ch`});
     input.addEventListener('keydown',e=>{
       if(e.key==='Escape'){e.preventDefault();closeInlineEditor(i);if(timers[i].state==='done')reset(i);el.querySelector('.edit').focus()}
