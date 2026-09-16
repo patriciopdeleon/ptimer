@@ -6,23 +6,16 @@ try{sound=localStorage.getItem('tap-sound')!=='off'}catch{}
 const $=s=>document.querySelector(s);
 const pencil='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m5 19 1-4L16 5l3 3L9 18l-4 1Z"/></svg>';
 const checkmark='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>';
-$('#timers').innerHTML=timers.map((_,i)=>`<section class="timer" data-state="ready"><div class="progress"></div><div class="tile-top"><span class="tile-label"><span class="number">0${i+1}</span><span class="name"></span></span><button class="edit" aria-label="Edit timer ${i+1}">${pencil}</button></div><button class="timer-main"><span class="time"></span><span class="state"><span class="play-icon" aria-hidden="true">▶</span><span class="action">Tap to start</span></span></button><form class="inline-editor" hidden aria-label="Edit timer ${i+1}"><div class="inline-time"><label class="inline-field"><span class="editable-digits" aria-hidden="true"></span><input class="edit-minutes" aria-label="Minutes" inputmode="numeric" type="text" pattern="[0-9]{1,3}" maxlength="3" required autocomplete="off" enterkeyhint="done"></label><span aria-hidden="true">:</span><label class="inline-field"><span class="editable-digits" aria-hidden="true"></span><input class="edit-seconds" aria-label="Seconds" inputmode="numeric" type="text" pattern="[0-9]{1,2}" maxlength="2" required autocomplete="off" enterkeyhint="done"></label></div></form><div class="tile-bottom"><span class="note">Your moment, on repeat.</span><button class="reset" hidden>Reset ↺</button></div></section>`).join('');
+$('#timers').innerHTML=timers.map((_,i)=>`<section class="timer" data-state="ready"><div class="progress"></div><div class="tile-top"><span class="tile-label"><span class="number">0${i+1}</span><span class="name"></span></span><button class="edit" aria-label="Edit timer ${i+1}">${pencil}</button></div><button class="timer-main"><span class="time"></span><span class="state"><span class="play-icon" aria-hidden="true">▶</span><span class="action">Tap to start</span></span></button><form class="inline-editor" hidden aria-label="Edit timer ${i+1}"><div class="inline-time"><label class="inline-field"><input class="edit-minutes" aria-label="Minutes" inputmode="numeric" type="text" pattern="[0-9]{1,3}" maxlength="3" required autocomplete="off" enterkeyhint="done"></label><span aria-hidden="true">:</span><label class="inline-field"><input class="edit-seconds" aria-label="Seconds" inputmode="numeric" type="text" pattern="[0-9]{1,2}" maxlength="2" required autocomplete="off" enterkeyhint="done"></label></div></form><div class="tile-bottom"><span class="note">Your moment, on repeat.</span><button class="reset" hidden>Reset ↺</button></div></section>`).join('');
 const tiles=[...document.querySelectorAll('.timer')];
 function format(seconds){return `${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')}`}
-function render(i){const t=timers[i],el=tiles[i],seconds=Math.ceil(t.state==='ready'?t.duration:t.remaining/1000);el.dataset.state=t.state;el.querySelector('.name').textContent=t.name;el.querySelector('.time').textContent=format(seconds);el.querySelector('.time').style.fontSize=seconds>=6000?'clamp(46px, 6.5vw, 110px)':'';const labels={ready:'Tap to start',running:'Tap to pause',paused:'Tap to resume',done:'Tap to go again'};el.querySelector('.action').textContent=labels[t.state];el.querySelector('.play-icon').textContent=t.state==='running'?'Ⅱ':t.state==='done'?'↻':'▶';el.querySelector('.timer-main').setAttribute('aria-label',`${t.name}, ${format(seconds)}. ${labels[t.state]}. Double tap to reset.`);el.querySelector('.edit').setAttribute('aria-label',`${editing===i?'Save':'Edit'} ${t.name}`);el.querySelector('.reset').hidden=t.state==='ready'||t.state==='done';el.querySelector('.note').textContent=t.state==='done'?"Time’s up. Ready for another?":t.state==='ready'?'Your moment, on repeat.':`${format(t.duration)} timer`;el.querySelector('.progress').style.height=`${t.state==='ready'?0:Math.max(0,Math.min(100,100*(1-t.remaining/(t.duration*1000))))}%`}
+function render(i){const t=timers[i],el=tiles[i],seconds=Math.ceil(t.state==='ready'?t.duration:t.remaining/1000);el.dataset.state=t.state;el.querySelector('.name').textContent=t.name;el.querySelector('.time').textContent=format(seconds);el.querySelector('.time').style.fontSize=seconds>=6000?'clamp(46px, 6.5vw, 110px)':'';const labels={ready:'Tap to start',running:'Tap to pause',paused:'Tap to resume',done:'Tap to go again'};el.querySelector('.action').textContent=labels[t.state];el.querySelector('.play-icon').textContent=t.state==='running'?'Ⅱ':t.state==='done'?'↻':'▶';el.querySelector('.timer-main').setAttribute('aria-label',`${t.name}, ${format(seconds)}. ${labels[t.state]}. Double tap to reset.`);el.querySelector('.edit').setAttribute('aria-label',`${editing===i?'Save':'Edit'} ${t.name}`);el.querySelector('.reset').hidden=t.state==='ready'||t.state==='done';el.querySelector('.note').textContent=t.state==='done'?"Time’s up. Ready for another?":t.state==='ready'?'Your moment, on repeat.':`${format(t.duration)} timer`;el.querySelector('.progress').style.width=`${t.state==='ready'?0:Math.max(0,Math.min(100,100*(1-t.remaining/(t.duration*1000))))}%`}
 function unlockAudio(){try{audio??=new(window.AudioContext||window.webkitAudioContext)();if(audio.state==='suspended')audio.resume().catch(()=>{})}catch{}}
 function ring(){if(!sound||!audio)return;try{[0,.22,.44].forEach((delay,i)=>{const oscillator=audio.createOscillator(),gain=audio.createGain(),at=audio.currentTime+delay;oscillator.type='sine';oscillator.frequency.value=[660,830,990][i];gain.gain.setValueAtTime(0,at);gain.gain.linearRampToValueAtTime(.22,at+.015);gain.gain.exponentialRampToValueAtTime(.001,at+.6);oscillator.connect(gain);gain.connect(audio.destination);oscillator.start(at);oscillator.stop(at+.65)})}catch{}}
 function finish(i){const t=timers[i];t.state='done';t.remaining=0;ring();render(i);$('#announcements').textContent=`${t.name} finished. Tap to start again.`;t.resetTimeout=setTimeout(()=>{if(t.state==='done')reset(i)},1000);}
 function tick(){timers.forEach((t,i)=>{if(t.state!=='running')return;t.remaining=Math.max(0,t.deadline-Date.now());if(!t.remaining)finish(i);else render(i)})}
 function toggle(i){unlockAudio();tick();const t=timers[i];clearTimeout(t.resetTimeout);if(t.state==='running'){t.state='paused'}else{if(t.state!=='paused')t.remaining=t.duration*1000;t.deadline=Date.now()+t.remaining;t.state='running'}render(i)}
 function reset(i){clearTimeout(timers[i].resetTimeout);timers[i].state='ready';timers[i].remaining=timers[i].duration*1000;render(i)}
-function syncEditDigits(input){
-  input.parentElement.querySelector('.editable-digits').textContent=input.value||'0';
-}
-function restoreUntypedField(input){
-  if(input.dataset.untouched==='true')input.value=input.dataset.original;
-  delete input.dataset.untouched;
-}
 function closeInlineEditor(i){
   const el=tiles[i];editing=null;delete el.dataset.editing;
   el.querySelector('.inline-editor').hidden=true;
@@ -33,7 +26,6 @@ function closeInlineEditor(i){
 function saveInlineEditor(i){
   const el=tiles[i],form=el.querySelector('.inline-editor');
   const minutes=el.querySelector('.edit-minutes'),seconds=el.querySelector('.edit-seconds');
-  restoreUntypedField(minutes);restoreUntypedField(seconds);
   minutes.setCustomValidity('');seconds.setCustomValidity('');
   const m=Number(minutes.value),s=Number(seconds.value);
   if(!/^[0-9]{1,3}$/.test(minutes.value))minutes.setCustomValidity('Enter minutes from 0 to 999.');
@@ -57,7 +49,7 @@ function openInlineEditor(i){
   el.querySelector('.edit').innerHTML=checkmark;
   const minutes=el.querySelector('.edit-minutes'),seconds=el.querySelector('.edit-seconds');
   minutes.value=String(Math.floor(t.duration/60));seconds.value=String(t.duration%60).padStart(2,'0');
-  [minutes,seconds].forEach(input=>{delete input.dataset.untouched;input.setCustomValidity('');syncEditDigits(input)});
+  [minutes,seconds].forEach(input=>{input.setCustomValidity('');input.style.width=`${Math.max(1,input.value.length)}ch`});
   render(i);minutes.focus();
 }
 tiles.forEach((el,i)=>{
@@ -71,21 +63,9 @@ tiles.forEach((el,i)=>{
   el.querySelector('.edit').addEventListener('click',()=>{lastTap=-Infinity;if(editing===i)saveInlineEditor(i);else openInlineEditor(i)});
   el.querySelector('.inline-editor').addEventListener('submit',e=>{e.preventDefault();saveInlineEditor(i)});
   el.querySelectorAll('.inline-editor input').forEach(input=>{
-    // The native input is invisible. Keep its previous digits on the display
-    // while preparing an empty value so iOS can type immediately, even for 00.
-    const prepareReplacement=()=>{
-      restoreUntypedField(input);
-      input.dataset.original=input.value;
-      input.dataset.untouched='true';
-      input.value='';
-    };
-    input.addEventListener('focus',prepareReplacement);
-    input.addEventListener('pointerdown',()=>{if(document.activeElement===input)prepareReplacement()});
-    input.addEventListener('blur',()=>{restoreUntypedField(input);syncEditDigits(input)});
     input.addEventListener('input',()=>{
-      delete input.dataset.untouched;
       el.querySelectorAll('.inline-editor input').forEach(field=>field.setCustomValidity(''));
-      syncEditDigits(input);
+      input.style.width=`${Math.max(1,input.value.length)}ch`;
     });
     input.addEventListener('keydown',e=>{
       if(e.key==='Escape'){e.preventDefault();closeInlineEditor(i);if(timers[i].state==='done')reset(i);el.querySelector('.edit').focus()}

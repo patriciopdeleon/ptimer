@@ -296,20 +296,20 @@ button { appearance: none; -webkit-appearance: none; }
 .inline-time { display: flex; align-items: baseline; justify-content: center; font-size: clamp(64px, 9vw, 160px); font-weight: 200; line-height: 1; letter-spacing: -.055em; font-variant-numeric: tabular-nums; color: #242629; }
 .inline-time input { appearance: none; -webkit-appearance: none; width: 2ch; min-width: 1ch; max-width: 3ch; padding: 0; margin: 0; border: 0; border-bottom: 1px solid #24262945; border-radius: 0; background: transparent; color: inherit; font: inherit; letter-spacing: inherit; text-align: center; box-shadow: none; }
 .inline-time input:focus-visible { outline: none; border-bottom-color: #242629; }
-.inline-time input::selection { background: transparent; color: inherit; }
+
 .timer[data-editing] .progress { visibility: hidden; }
 @media(max-width:700px) {
   .inline-editor { padding: 36px 24px; }
   .inline-time { font-size: clamp(56px, 18vw, 100px); }
 }
 
-/* The underline alone indicates inline editing. */
-.inline-time input { caret-color: transparent; }
 
-.inline-time input { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
 
-/* Render digits separately so iOS cannot paint a caret or selection over them. */
-.inline-field { position: relative; display: block; margin: 0; font: inherit; letter-spacing: inherit; line-height: 1; border-bottom: 1px solid #24262945; }
-.inline-field:focus-within { border-bottom-color: #242629; }
-.editable-digits { display: block; min-width: 1ch; pointer-events: none; }
-.inline-time .inline-field input { position: absolute; inset: 0; width: 100%; max-width: none; height: 100%; opacity: 0; padding: 0; margin: 0; border: 0; cursor: text; }
+
+
+/* Standard native text fields: retain phone caret, selection and edit menus. */
+.inline-field { display: block; margin: 0; font: inherit; letter-spacing: inherit; line-height: 1; }
+.inline-time input { caret-color: auto; user-select: text; -webkit-user-select: text; -webkit-touch-callout: default; }
+
+/* Elapsed progress fills from the left edge to the right. */
+.progress { inset: 0 auto 0 0; height: 100%; width: 0; }
