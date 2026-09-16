@@ -50,7 +50,7 @@ function openInlineEditor(i){
   const minutes=el.querySelector('.edit-minutes'),seconds=el.querySelector('.edit-seconds');
   minutes.value=String(Math.floor(t.duration/60));seconds.value=String(t.duration%60).padStart(2,'0');
   [minutes,seconds].forEach(input=>{input.setCustomValidity('');input.style.width=`${Math.max(input.value.length,1)}ch`});
-  render(i);minutes.focus();minutes.select();
+  render(i);minutes.focus();
 }
 tiles.forEach((el,i)=>{
   let lastTap=-Infinity;
@@ -63,7 +63,6 @@ tiles.forEach((el,i)=>{
   el.querySelector('.edit').addEventListener('click',()=>{lastTap=-Infinity;if(editing===i)saveInlineEditor(i);else openInlineEditor(i)});
   el.querySelector('.inline-editor').addEventListener('submit',e=>{e.preventDefault();saveInlineEditor(i)});
   el.querySelectorAll('.inline-editor input').forEach(input=>{
-    input.addEventListener('focus',()=>input.select());
     input.addEventListener('input',()=>{el.querySelectorAll('.inline-editor input').forEach(field=>field.setCustomValidity(''));input.style.width=`${Math.max(input.value.length,1)}ch`});
     input.addEventListener('keydown',e=>{
       if(e.key==='Escape'){e.preventDefault();closeInlineEditor(i);if(timers[i].state==='done')reset(i);el.querySelector('.edit').focus()}
@@ -72,6 +71,25 @@ tiles.forEach((el,i)=>{
   });
   render(i);
 });
+// A tap outside the active fields commits the edit and is consumed, so it
+// cannot also start a timer, toggle sound, or open another editor.
+let saveTapPending=false;
+document.addEventListener('pointerdown',event=>{
+  saveTapPending=false;
+  if(editing===null)return;
+  const fields=tiles[editing].querySelector('.inline-time');
+  if(fields.contains(event.target))return;
+  saveTapPending=true;
+  event.preventDefault();
+  event.stopImmediatePropagation();
+  saveInlineEditor(editing);
+},true);
+document.addEventListener('click',event=>{
+  if(!saveTapPending)return;
+  saveTapPending=false;
+  event.preventDefault();
+  event.stopImmediatePropagation();
+},true);
 function updateSound(){$('#sound').innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 5 7 9H4v6h3l5 4Z"/>${sound?'<path d="M17 9a5 5 0 0 1 0 6"/>':'<path d="m17 10 4 4m0-4-4 4"/>'}</svg>`;$('#sound').setAttribute('aria-pressed',String(sound));$('#sound').setAttribute('aria-label',`Sound ${sound?'on':'off'}`)}
 $('#sound').onclick=()=>{sound=!sound;unlockAudio();updateSound();try{localStorage.setItem('tap-sound',sound?'on':'off')}catch{}};updateSound();
 document.addEventListener('keydown',e=>{if(editing!==null||e.repeat||e.ctrlKey||e.metaKey||e.altKey||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;if(/^[123]$/.test(e.key)){e.preventDefault();toggle(Number(e.key)-1)}});
