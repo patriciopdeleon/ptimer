@@ -257,3 +257,8 @@ dialog::backdrop {
 @media (hover: hover) and (pointer: fine) {
   .edit:hover::before, .sound:hover::before { background: #ffffff38; }
 }
+
+/* White marks with soft light and a subtle contrast shadow. */
+.time { color: #fff; text-shadow: 0 1px 2px #343a4045, 0 0 8px #ffffffa6, 0 0 22px #ffffff66; }
+.edit, .sound { color: #fff; }
+.edit svg, .sound svg { filter: drop-shadow(0 1px 1px #343a4055) drop-shadow(0 0 3px #ffffff99); }
