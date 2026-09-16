@@ -1,4 +1,4 @@
-# Tap Timer
+# ptimer
 
 Three minimal, independent repeat timers. Defaults are 1, 3, and 5 minutes, with custom durations saved on your device.
 
