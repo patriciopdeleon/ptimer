@@ -262,3 +262,12 @@ dialog::backdrop {
 .time { color: #fff; text-shadow: 0 1px 2px #343a4045, 0 0 8px #ffffffa6, 0 0 22px #ffffff66; }
 .edit, .sound { color: #fff; }
 .edit svg, .sound svg { filter: drop-shadow(0 1px 1px #343a4055) drop-shadow(0 0 3px #ffffff99); }
+
+/* Keep touch controls free of filtered SVG/compositing layers. */
+@media (hover: none) and (pointer: coarse) {
+  .edit svg, .sound svg { filter: none; }
+  .edit::before, .sound::before { content: none; }
+  .edit, .sound { isolation: auto; }
+}
+/* Pointer taps do not need a keyboard focus ring. */
+html[data-touch-input] button:focus-visible { outline: none; }

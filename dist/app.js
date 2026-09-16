@@ -30,3 +30,10 @@ if ('serviceWorker' in navigator && window.isSecureContext) {
     navigator.serviceWorker.register('./sw.js').catch(error => console.warn('Offline setup failed:', error));
   });
 }
+
+// Preserve focus indicators for keyboard use, without rings after touch taps.
+document.addEventListener('pointerdown', event => {
+  if (event.pointerType === 'touch') document.documentElement.setAttribute('data-touch-input', '');
+  else document.documentElement.removeAttribute('data-touch-input');
+}, true);
+document.addEventListener('keydown', () => document.documentElement.removeAttribute('data-touch-input'), true);
