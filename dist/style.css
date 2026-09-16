@@ -271,3 +271,8 @@ dialog::backdrop {
 }
 /* Pointer taps do not need a keyboard focus ring. */
 html[data-touch-input] button:focus-visible { outline: none; }
+
+/* High-contrast dark marks on the light neutral panels. */
+.time { color: #242629; text-shadow: none; }
+.edit, .sound { color: #292c30; }
+.edit svg, .sound svg { filter: none; }
