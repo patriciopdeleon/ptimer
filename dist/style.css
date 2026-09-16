@@ -289,3 +289,16 @@ button { appearance: none; -webkit-appearance: none; }
   border: 0;
 }
 .timer-main:active .time { transform: none; }
+
+/* Edit the duration in place, with the same typography as the countdown. */
+.timer-main[hidden], .inline-editor[hidden] { display: none; }
+.inline-editor { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; position: relative; z-index: 1; padding: 70px 12px; }
+.inline-time { display: flex; align-items: baseline; justify-content: center; font-size: clamp(64px, 9vw, 160px); font-weight: 200; line-height: 1; letter-spacing: -.055em; font-variant-numeric: tabular-nums; color: #242629; }
+.inline-time input { appearance: none; -webkit-appearance: none; width: 2ch; min-width: 1ch; max-width: 3ch; padding: 0; margin: 0; border: 0; border-bottom: 1px solid #24262945; border-radius: 0; background: transparent; color: inherit; font: inherit; letter-spacing: inherit; text-align: center; box-shadow: none; }
+.inline-time input:focus-visible { outline: none; border-bottom-color: #242629; }
+.inline-time input::selection { background: #2426291c; }
+.timer[data-editing] .progress { visibility: hidden; }
+@media(max-width:700px) {
+  .inline-editor { padding: 36px 24px; }
+  .inline-time { font-size: clamp(56px, 18vw, 100px); }
+}

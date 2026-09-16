@@ -5,7 +5,7 @@ Three minimal, independent repeat timers. Defaults are 1, 3, and 5 minutes, with
 - Tap to start, pause, or resume.
 - Double-tap to reset.
 - On completion, the timer shows zero for one second, then restores its preset.
-- Use the pencil to edit a duration and the speaker to toggle sound.
+- Use the pencil to edit minutes and seconds directly on the timer, then tap the checkmark to save. The speaker toggles sound.
 
 ## Run locally
 

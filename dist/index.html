@@ -15,7 +15,6 @@
 <body>
   <button id="sound" class="sound" aria-pressed="true" aria-label="Sound on"></button>
   <main id="timers" aria-label="Repeat timers"></main>
-  <dialog id="editor" aria-label="Edit timer"><form id="edit-form"><button type="button" id="close-editor" class="close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button><input id="timer-name" type="hidden"><div class="duration-fields"><div><input aria-label="Minutes" id="minutes" type="number" min="0" max="999" required inputmode="numeric"></div><span>:</span><div><input aria-label="Seconds" id="seconds" type="number" min="0" max="59" required inputmode="numeric"></div></div><p id="error" class="sr-only" role="alert"></p><button class="save" type="submit" aria-label="Save timer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></button></form></dialog>
   <div id="announcements" class="sr-only" role="status" aria-live="polite"></div>
 </body>
 </html>
