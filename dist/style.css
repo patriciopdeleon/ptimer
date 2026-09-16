@@ -276,3 +276,16 @@ html[data-touch-input] button:focus-visible { outline: none; }
 .time { color: #242629; text-shadow: none; }
 .edit, .sound { color: #292c30; }
 .edit svg, .sound svg { filter: none; }
+
+/* Plain button painting and untransformed progress avoid touch compositing artifacts. */
+button { appearance: none; -webkit-appearance: none; }
+.progress {
+  top: auto;
+  bottom: 0;
+  height: 0;
+  transform: none;
+  transform-origin: initial;
+  transition: none;
+  border: 0;
+}
+.timer-main:active .time { transform: none; }
