@@ -7,10 +7,9 @@
   <link rel="stylesheet" href="style.css"><script src="app.js" defer></script>
 </head>
 <body>
-  <header><a class="brand" href="./" aria-label="Tap home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="13" r="8"/><path d="M12 8v5l3 2M9 2h6"/></svg>tap<span> / </span></a><span class="header-note">Less setting. More doing.</span><button id="sound" class="sound" aria-pressed="true" aria-label="Sound on">Sound on <span aria-hidden="true">♪</span></button></header>
+  <button id="sound" class="sound" aria-pressed="true" aria-label="Sound on"></button>
   <main id="timers" aria-label="Repeat timers"></main>
-  <footer><span>For the things you do <em>again & again.</em></span><span class="keyboard-hint"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> to start or pause</span></footer>
-  <dialog id="editor"><form id="edit-form"><div class="dialog-top"><span class="eyebrow">MAKE IT YOURS</span><button type="button" id="close-editor" class="close" aria-label="Close">×</button></div><h1>Edit timer</h1><p>Set it once. Tap it whenever.</p><label for="timer-name">Timer name</label><input id="timer-name" maxlength="24" autocomplete="off"><div class="duration-fields"><div><label for="minutes">Minutes</label><input id="minutes" type="number" min="0" max="999" required inputmode="numeric"></div><span>:</span><div><label for="seconds">Seconds</label><input id="seconds" type="number" min="0" max="59" required inputmode="numeric"></div></div><p id="error" role="alert"></p><button class="save" type="submit">Save timer <span>↗</span></button></form></dialog>
+  <dialog id="editor" aria-label="Edit timer"><form id="edit-form"><button type="button" id="close-editor" class="close" aria-label="Close">×</button><input id="timer-name" type="hidden"><div class="duration-fields"><div><input aria-label="Minutes" id="minutes" type="number" min="0" max="999" required inputmode="numeric"></div><span>:</span><div><input aria-label="Seconds" id="seconds" type="number" min="0" max="59" required inputmode="numeric"></div></div><p id="error" class="sr-only" role="alert"></p><button class="save" type="submit" aria-label="Save timer">✓</button></form></dialog>
   <div id="announcements" class="sr-only" role="status" aria-live="polite"></div>
 </body>
 </html>
