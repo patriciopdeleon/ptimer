@@ -302,3 +302,6 @@ button { appearance: none; -webkit-appearance: none; }
   .inline-editor { padding: 36px 24px; }
   .inline-time { font-size: clamp(56px, 18vw, 100px); }
 }
+
+/* The underline alone indicates inline editing. */
+.inline-time input { caret-color: transparent; }
