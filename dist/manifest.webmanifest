@@ -1,0 +1,16 @@
+{
+  "id": "./",
+  "name": "Tap Timer",
+  "short_name": "Tap",
+  "description": "Three simple timers. Tap to start, pause, and repeat.",
+  "lang": "en",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f1f2f3",
+  "theme_color": "#f1f2f3",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

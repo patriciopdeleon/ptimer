@@ -3,13 +3,19 @@
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Tap — Repeat timers</title><meta name="description" content="Three timers. One tap. A simple timer for the things you do again and again.">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231b211d'/%3E%3Ccircle cx='16' cy='17' r='9' fill='none' stroke='%23dbef6a' stroke-width='2'/%3E%3Cpath d='M16 11v7h5M13 4h6' fill='none' stroke='%23dbef6a' stroke-width='2'/%3E%3C/svg%3E">
+  <meta name="theme-color" content="#f1f2f3">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Tap">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
   <link rel="stylesheet" href="style.css"><script src="app.js" defer></script>
 </head>
 <body>
   <button id="sound" class="sound" aria-pressed="true" aria-label="Sound on"></button>
   <main id="timers" aria-label="Repeat timers"></main>
-  <dialog id="editor" aria-label="Edit timer"><form id="edit-form"><button type="button" id="close-editor" class="close" aria-label="Close">×</button><input id="timer-name" type="hidden"><div class="duration-fields"><div><input aria-label="Minutes" id="minutes" type="number" min="0" max="999" required inputmode="numeric"></div><span>:</span><div><input aria-label="Seconds" id="seconds" type="number" min="0" max="59" required inputmode="numeric"></div></div><p id="error" class="sr-only" role="alert"></p><button class="save" type="submit" aria-label="Save timer">✓</button></form></dialog>
+  <dialog id="editor" aria-label="Edit timer"><form id="edit-form"><button type="button" id="close-editor" class="close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button><input id="timer-name" type="hidden"><div class="duration-fields"><div><input aria-label="Minutes" id="minutes" type="number" min="0" max="999" required inputmode="numeric"></div><span>:</span><div><input aria-label="Seconds" id="seconds" type="number" min="0" max="59" required inputmode="numeric"></div></div><p id="error" class="sr-only" role="alert"></p><button class="save" type="submit" aria-label="Save timer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></button></form></dialog>
   <div id="announcements" class="sr-only" role="status" aria-live="polite"></div>
 </body>
 </html>
