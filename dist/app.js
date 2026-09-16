@@ -63,6 +63,7 @@ tiles.forEach((el,i)=>{
   el.querySelector('.edit').addEventListener('click',()=>{lastTap=-Infinity;if(editing===i)saveInlineEditor(i);else openInlineEditor(i)});
   el.querySelector('.inline-editor').addEventListener('submit',e=>{e.preventDefault();saveInlineEditor(i)});
   el.querySelectorAll('.inline-editor input').forEach(input=>{
+    input.addEventListener('focus',()=>input.select());
     input.addEventListener('input',()=>{
       el.querySelectorAll('.inline-editor input').forEach(field=>field.setCustomValidity(''));
       input.style.width=`${Math.max(1,input.value.length)}ch`;

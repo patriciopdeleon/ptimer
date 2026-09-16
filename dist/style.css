@@ -313,3 +313,6 @@ button { appearance: none; -webkit-appearance: none; }
 
 /* Elapsed progress fills from the left edge to the right. */
 .progress { inset: 0 auto 0 0; height: 100%; width: 0; }
+
+/* Select full values on focus; keep native selection but hide the caret. */
+.inline-time input { caret-color: transparent; }
