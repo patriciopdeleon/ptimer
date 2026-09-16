@@ -1,9 +1,9 @@
 // Increment this version when changing the offline app shell.
 const CACHE_PREFIX = `tap-timer-${self.registration.scope}-`;
-const CACHE_NAME = `${CACHE_PREFIX}v15`;
+const CACHE_NAME = `${CACHE_PREFIX}v16`;
 const ASSETS = ['./', './index.html', './style.css', './app.js', './manifest.webmanifest', './icons/icon-192.png?v=6', './icons/icon-512.png?v=6', './icons/apple-touch-icon.png?v=6'];
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)));
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS.map(path => new Request(new URL(path, self.registration.scope), {cache: 'reload'})))));
 });
 // Updated workers activate after all windows using the old version close.
 self.addEventListener('activate', event => {
