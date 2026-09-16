@@ -1,4 +1,4 @@
-name: Publish Tap Timer
+name: Publish ptimer
 on:
   push:
     branches: [main]
@@ -18,6 +18,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v6
+      - name: Verify app
+        run: node scripts/check.mjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:

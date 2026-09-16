@@ -1,318 +1,283 @@
 :root {
+  color: #242629;
+  background: #bcbfc2;
   font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
-  color: #172932;
   font-synthesis: none;
-  background: #dce5ed;
 }
-* { box-sizing: border-box; }
-body { margin: 0; height: 100svh; overflow: hidden; }
-button, input { font: inherit; color: inherit; }
-button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
-button:focus-visible { outline: 2px solid #243b51; outline-offset: -6px; }
-main { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); height: 100%; }
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  height: 100svh;
+  margin: 0;
+  overflow: hidden;
+}
+
+button,
+input {
+  color: inherit;
+  font: inherit;
+}
+
+button {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible {
+  outline: 2px solid #35393e;
+  outline-offset: -6px;
+}
+
+html[data-touch-input] button:focus-visible {
+  outline: none;
+}
+
+main {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  height: 100%;
+}
+
 .timer {
-  --tint: 193 223 96;
-  position: relative; isolation: isolate; overflow: hidden;
-  display: flex; flex-direction: column; min-height: 0;
-  background:
-    radial-gradient(ellipse at 5% 0%, #ffffffe6 0%, #ffffff00 55%),
-    radial-gradient(ellipse at 100% 100%, rgb(var(--tint) / .9), transparent 68%),
-    linear-gradient(145deg, rgb(var(--tint) / .62), rgb(var(--tint) / .88));
-  box-shadow: inset 1px 0 #ffffff9c, inset -1px 0 #243b5114, inset 0 1px #ffffffc9;
+  position: relative;
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+  flex-direction: column;
+  background: #d9dbdd;
 }
-.timer:nth-child(2) { --tint: 142 175 245; }
-.timer:nth-child(3) { --tint: 240 158 113; }
-/* Wide reflected light and a narrow highlight give each pane a glass surface. */
-.timer::before {
-  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
-  background: linear-gradient(119deg, transparent 15%, #ffffff0a 27%, #ffffff73 28%, #ffffff29 39%, transparent 40%, transparent 63%, #ffffff21 64%, transparent 78%);
-  opacity: .8;
-}
-.timer::after {
-  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 2;
-  box-shadow: inset 0 0 60px #ffffff17;
-  background: radial-gradient(ellipse at 28% 0%, #ffffff6b, transparent 45%);
-}
-.timer-main {
-  position: relative; z-index: 1; flex: 1; width: 100%; min-height: 0;
-  border: 0; background: transparent; padding: 70px 12px;
-  display: flex; align-items: center; justify-content: center;
-  touch-action: manipulation; user-select: none; -webkit-user-select: none;
-}
-.time {
-  font-size: clamp(64px, 9vw, 160px); font-weight: 200;
-  font-variant-numeric: tabular-nums; letter-spacing: -.055em; line-height: 1;
-  text-shadow: 0 1px 1px #ffffff70;
-  transition: opacity .2s, transform .2s;
-}
-.timer-main:active .time { transform: scale(.98); }
-.timer[data-state=paused] .time { opacity: .45; }
-.timer[data-state=done] { box-shadow: inset 0 0 0 2px #ffffffed, inset 0 0 70px #ffffff66; }
-.progress {
-  position: absolute; inset: 0; z-index: 0; pointer-events: none;
-  background: #ffffff30; border-top: 1px solid #ffffff80;
-  transform-origin: bottom; transform: scaleY(0); transition: transform .2s linear;
-}
-.tile-label, .state, .tile-bottom { display: none; }
-.tile-top { position: absolute; top: max(18px, env(safe-area-inset-top)); right: 18px; z-index: 3; }
-.edit, .sound, .close {
-  display: grid; place-items: center; width: 44px; height: 44px; padding: 12px;
-  border: 1px solid #ffffff66; border-radius: 14px;
-  background: #ffffff12; box-shadow: inset 0 1px #ffffff40;
-  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  transition: background .2s;
-}
-.edit:hover, .sound:hover, .close:hover { background: #ffffff55; }
-.edit svg, .sound svg, .close svg, .save svg { width: 20px; height: 20px; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
-.sound { position: fixed; bottom: max(18px, env(safe-area-inset-bottom)); right: 18px; z-index: 5; }
-dialog {
-  width: min(380px, calc(100% - 32px)); padding: 20px;
-  border: 1px solid #ffffffb3; border-radius: 24px; color: #172932;
-  background: linear-gradient(145deg, #ffffffdb, #eff4ffd1);
-  backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
-  box-shadow: 0 24px 80px #273f5733, inset 0 1px white;
-}
-dialog::backdrop { background: #20344726; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
-.close { margin-left: auto; }
-.duration-fields { display: flex; align-items: center; gap: 12px; margin: 20px 0 28px; }
-.duration-fields>div { flex: 1; min-width: 0; }
-.duration-fields>span { font-size: 32px; font-weight: 200; }
-input { width: 100%; min-width: 0; border: 1px solid #ffffffcc; border-radius: 14px; background: #ffffff45; padding: 14px 4px; font-size: 44px; font-weight: 300; text-align: center; }
-input:focus-visible { outline: 2px solid #617d98; outline-offset: 2px; }
-.save { display: grid; place-items: center; width: 100%; padding: 14px; border: 1px solid #ffffffcc; border-radius: 14px; background: #ffffff70; }
-.save:hover { background: white; }
-.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
-@media (max-width: 700px) {
-  main { grid-template-columns: 1fr; grid-template-rows: repeat(3, minmax(0, 1fr)); }
-  .timer { box-shadow: inset 0 1px #ffffffa6, inset 0 -1px #243b5114; }
-  .timer-main { padding: 36px 60px; }
-  .time { font-size: clamp(64px, 21vw, 110px); }
-  .tile-top { top: 12px; right: 12px; }
-  .sound { right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); }
-}
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 
-/* Three flat layers of the same yellow, increasing in depth. */
-:root { color: #fffcef; background: #e0e200; }
-.timer {
-  background: #f5f347;
-  box-shadow: none;
-}
-.timer:nth-child(2) { background: #eeed1c; }
-.timer:nth-child(3) { background: #e0e200; }
-.timer::before, .timer::after { content: none; }
-.time { text-shadow: none; }
-.edit, .sound {
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  color: #fffcef;
-}
-.edit:hover, .sound:hover { background: #ffffff12; }
-.progress { background: #ffffff0d; border-top: 1px solid #ffffff35; }
-.timer[data-state=done] { box-shadow: inset 0 0 0 2px #fffcef99; }
-button:focus-visible { outline-color: #fffcef; }
-dialog {
-  background: #f5eed8;
-  border: 0;
-  box-shadow: 0 20px 70px #45381133;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-dialog::backdrop { background: #45381155; backdrop-filter: none; -webkit-backdrop-filter: none; }
-.close { background: transparent; border: 0; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
-.close:focus-visible, .save:focus-visible { outline-color: #e0e200; }
-input { background: #fffcf2; border-color: #e2d6b0; }
-.save { background: #e0e200; color: #fffcef; border: 0; }
-.save:hover { background: #cbd000; }
-
-/* Soft white light around the numbers and controls. */
-.time {
-  color: #ffffff;
-  text-shadow: 0 0 5px #ffffff80, 0 0 16px #ffffff55, 0 0 30px #ffffff26;
-}
-.edit, .sound { color: #ffffff; }
-.edit svg, .sound svg { filter: drop-shadow(0 0 3px #ffffffaa); }
-
-/* Compact translucent duration editor. */
-dialog {
-  width: min(300px, calc(100% - 40px));
-  padding: 16px;
-  border: 1px solid #ffffff80;
-  border-radius: 20px;
-  color: #303522;
-  background: #ffffff42;
-  backdrop-filter: blur(24px) saturate(115%);
-  -webkit-backdrop-filter: blur(24px) saturate(115%);
-  box-shadow: 0 12px 48px #3035221f, inset 0 1px #ffffff66;
-}
-dialog::backdrop {
-  background: #30352214;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
-.close { width: 32px; height: 32px; padding: 8px; border-radius: 10px; }
-.close svg, .save svg { width: 17px; height: 17px; }
-.duration-fields { gap: 10px; margin: 14px 0 20px; }
-.duration-fields > span { font-size: 24px; font-weight: 300; opacity: .65; }
-.duration-fields input {
-  font-size: 30px;
-  font-weight: 300;
-  font-variant-numeric: tabular-nums;
-  padding: 12px 4px;
-  border-radius: 12px;
-  border: 1px solid #ffffff66;
-  background: #ffffff29;
-  appearance: textfield;
-  -moz-appearance: textfield;
-}
-.duration-fields input::-webkit-inner-spin-button,
-.duration-fields input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-.duration-fields input:focus-visible { outline: 1px solid #30352280; outline-offset: 2px; background: #ffffff45; }
-.save {
-  padding: 10px;
-  min-height: 40px;
-  border: 1px solid #ffffff66;
-  border-radius: 12px;
-  background: #ffffff33;
-  color: #303522;
-}
-.save:hover, .close:hover { background: #ffffff66; }
-.close:focus-visible, .save:focus-visible { outline-color: #303522; }
-
-/* Neutral translucent-layer palette. */
-:root { color: #242629; background: #bcbfc2; }
-.timer { background: #d9dbdd; }
-.timer:nth-child(2) { background: #cbcdd0; }
-.timer:nth-child(3) { background: #bcbfc2; }
-.time {
-  color: #242629;
-  text-shadow: 0 1px 0 #ffffff80;
-}
-.edit, .sound { color: #292c30; }
-.edit svg, .sound svg { filter: none; }
-.edit:hover, .sound:hover { background: #ffffff38; }
-.progress { background: #ffffff52; border-top-color: #ffffff66; }
-.timer[data-state=done] { box-shadow: inset 0 0 0 2px #ffffffa6; }
-button:focus-visible { outline-color: #35393e; }
-dialog { color: #292c30; background: #ffffff42; box-shadow: 0 12px 48px #22262b1f, inset 0 1px #ffffff66; }
-dialog::backdrop { background: #22262b14; }
-.duration-fields input:focus-visible { outline-color: #35393e80; }
-.save { color: #292c30; }
-.close:focus-visible, .save:focus-visible { outline-color: #35393e; }
-
-/* Editor uses the same flat, square surfaces as the timers. */
-dialog {
-  border-radius: 0;
-  border: 0;
+.timer:nth-child(2) {
   background: #cbcdd0;
-  color: #242629;
-  box-shadow: none;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-dialog::backdrop {
-  background: #24262926;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-.close, .duration-fields input, .save { border-radius: 0; border: 0; box-shadow: none; }
-.duration-fields input { background: #d9dbdd; color: #242629; }
-.duration-fields input:focus-visible { background: #d9dbdd; }
-.save { background: #bcbfc2; color: #242629; }
-.save:hover { background: #c7cace; }
-.close:hover { background: #bcbfc2; }
-
-/* Square controls with a subtle highlight for desktop pointers. */
-.edit, .sound {
-  background: transparent;
-  border-radius: 0;
-}
-@media (hover: hover) and (pointer: fine) {
-  .edit:hover, .sound:hover { background: #ffffff38; }
-}
-@media (hover: none) {
-  .edit:hover, .sound:hover { background: transparent; }
 }
 
-/* 32px hover squares within the existing 44px touch targets. */
-.edit, .sound { isolation: isolate; }
-.edit { position: relative; }
-.edit::before, .sound::before {
-  content: '';
+.timer:nth-child(3) {
+  background: #bcbfc2;
+}
+
+.timer[data-state='done'] {
+  box-shadow: inset 0 0 0 2px #ffffffa6;
+}
+
+.progress {
   position: absolute;
-  width: 32px;
-  height: 32px;
+  z-index: 0;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  pointer-events: none;
+  background: #ffffff52;
+}
+
+.timer[data-editing] .progress {
+  visibility: hidden;
+}
+
+.timer-main {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 0;
+  padding: 70px 12px;
+  border: 0;
+  background: transparent;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.time {
+  color: #242629;
+  font-size: clamp(64px, 9vw, 160px);
+  font-weight: 200;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.055em;
+  line-height: 1;
+}
+
+.tile-top {
+  position: absolute;
+  z-index: 3;
+  top: max(18px, env(safe-area-inset-top));
+  right: 18px;
+}
+
+.edit,
+.sound {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 12px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #292c30;
+}
+
+.edit::before,
+.sound::before {
+  position: absolute;
+  z-index: 0;
   top: 50%;
   left: 50%;
+  width: 32px;
+  height: 32px;
+  content: '';
   transform: translate(-50%, -50%);
-  z-index: -1;
   pointer-events: none;
   background: transparent;
-  transition: background .2s;
-}
-.edit:hover, .sound:hover { background: transparent; }
-@media (hover: hover) and (pointer: fine) {
-  .edit:hover::before, .sound:hover::before { background: #ffffff38; }
 }
 
-/* White marks with soft light and a subtle contrast shadow. */
-.time { color: #fff; text-shadow: 0 1px 2px #343a4045, 0 0 8px #ffffffa6, 0 0 22px #ffffff66; }
-.edit, .sound { color: #fff; }
-.edit svg, .sound svg { filter: drop-shadow(0 1px 1px #343a4055) drop-shadow(0 0 3px #ffffff99); }
-
-/* Keep touch controls free of filtered SVG/compositing layers. */
-@media (hover: none) and (pointer: coarse) {
-  .edit svg, .sound svg { filter: none; }
-  .edit::before, .sound::before { content: none; }
-  .edit, .sound { isolation: auto; }
+.edit svg,
+.sound svg {
+  position: relative;
+  z-index: 1;
+  width: 20px;
+  height: 20px;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
-/* Pointer taps do not need a keyboard focus ring. */
-html[data-touch-input] button:focus-visible { outline: none; }
 
-/* High-contrast dark marks on the light neutral panels. */
-.time { color: #242629; text-shadow: none; }
-.edit, .sound { color: #292c30; }
-.edit svg, .sound svg { filter: none; }
+.sound {
+  position: fixed;
+  z-index: 5;
+  right: 18px;
+  bottom: max(18px, env(safe-area-inset-bottom));
+}
 
-/* Plain button painting and untransformed progress avoid touch compositing artifacts. */
-button { appearance: none; -webkit-appearance: none; }
-.progress {
-  top: auto;
-  bottom: 0;
-  height: 0;
-  transform: none;
-  transform-origin: initial;
-  transition: none;
+.timer-main[hidden],
+.inline-editor[hidden] {
+  display: none;
+}
+
+.inline-editor {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  padding: 70px 12px;
+}
+
+.inline-time {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  color: #242629;
+  font-size: clamp(64px, 9vw, 160px);
+  font-weight: 200;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.055em;
+  line-height: 1;
+}
+
+.inline-field {
+  display: block;
+  margin: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: 1;
+}
+
+.inline-time input {
+  width: 2ch;
+  min-width: 1ch;
+  max-width: 3ch;
+  margin: 0;
+  padding: 0;
   border: 0;
+  border-bottom: 1px solid #24262945;
+  border-radius: 0;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  caret-color: transparent;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: center;
+  user-select: text;
+  -webkit-user-select: text;
+  -webkit-touch-callout: default;
 }
-.timer-main:active .time { transform: none; }
 
-/* Edit the duration in place, with the same typography as the countdown. */
-.timer-main[hidden], .inline-editor[hidden] { display: none; }
-.inline-editor { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; position: relative; z-index: 1; padding: 70px 12px; }
-.inline-time { display: flex; align-items: baseline; justify-content: center; font-size: clamp(64px, 9vw, 160px); font-weight: 200; line-height: 1; letter-spacing: -.055em; font-variant-numeric: tabular-nums; color: #242629; }
-.inline-time input { appearance: none; -webkit-appearance: none; width: 2ch; min-width: 1ch; max-width: 3ch; padding: 0; margin: 0; border: 0; border-bottom: 1px solid #24262945; border-radius: 0; background: transparent; color: inherit; font: inherit; letter-spacing: inherit; text-align: center; box-shadow: none; }
-.inline-time input:focus-visible { outline: none; border-bottom-color: #242629; }
-
-.timer[data-editing] .progress { visibility: hidden; }
-@media(max-width:700px) {
-  .inline-editor { padding: 36px 24px; }
-  .inline-time { font-size: clamp(56px, 18vw, 100px); }
+.inline-time input:focus {
+  border-bottom-color: #242629;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+  white-space: nowrap;
+}
 
+@media (hover: hover) and (pointer: fine) {
+  .edit:hover::before,
+  .sound:hover::before {
+    background: #ffffff38;
+  }
+}
 
+@media (max-width: 700px) {
+  main {
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+    grid-template-columns: 1fr;
+  }
 
+  .timer-main {
+    padding: 36px 60px;
+  }
 
-/* Standard native text fields: retain phone caret, selection and edit menus. */
-.inline-field { display: block; margin: 0; font: inherit; letter-spacing: inherit; line-height: 1; }
-.inline-time input { caret-color: auto; user-select: text; -webkit-user-select: text; -webkit-touch-callout: default; }
+  .time {
+    font-size: clamp(64px, 21vw, 110px);
+  }
 
-/* Elapsed progress fills from the left edge to the right. */
-.progress { inset: 0 auto 0 0; height: 100%; width: 0; }
+  .tile-top {
+    top: 12px;
+    right: 12px;
+  }
 
-/* Select full values on focus; keep native selection but hide the caret. */
-.inline-time input { caret-color: transparent; }
+  .sound {
+    right: 12px;
+    bottom: max(12px, env(safe-area-inset-bottom));
+  }
+
+  .inline-editor {
+    padding: 36px 24px;
+  }
+
+  .inline-time {
+    font-size: clamp(56px, 18vw, 100px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+  }
+}

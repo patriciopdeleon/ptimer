@@ -15,6 +15,12 @@ python3 -m http.server 4173 --directory dist
 
 Open http://localhost:4173. No installation or build step is required.
 
+Run the repository checks before publishing:
+
+```sh
+node scripts/check.mjs
+```
+
 ## Install on iPhone
 
 After publication, open https://patriciopdeleon.github.io/ptimer/ in Safari. Choose Share → Add to Home Screen, enable Open as Web App if offered, and tap Add.
