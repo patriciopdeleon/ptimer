@@ -24,15 +24,15 @@ const manifest = JSON.parse(manifestBuffer.toString('utf8'));
 
 assert.ok(appBuffer.length > 0, 'dist/app.js must not be empty');
 assert.ok(stylesheetBuffer.length > 0, 'dist/style.css must not be empty');
-assert.match(index, /<title>ptimer<\/title>/, 'The document title must be ptimer');
+assert.match(index, /<title>pTimer<\/title>/, 'The document title must be pTimer');
 assert.match(index, /href="manifest\.webmanifest"/, 'index.html must link the web app manifest');
 const appAsset = index.match(/src="(app\.js(?:\?[^\"]*)?)"/)?.[1];
 const stylesheetAsset = index.match(/href="(style\.css(?:\?[^\"]*)?)"/)?.[1];
 assert.ok(appAsset, 'index.html must load app.js');
 assert.ok(stylesheetAsset, 'index.html must load style.css');
 
-assert.equal(manifest.name, 'ptimer');
-assert.equal(manifest.short_name, 'ptimer');
+assert.equal(manifest.name, 'pTimer');
+assert.equal(manifest.short_name, 'pTimer');
 assert.equal(manifest.start_url, './');
 assert.equal(manifest.scope, './');
 assert.equal(manifest.display, 'standalone');

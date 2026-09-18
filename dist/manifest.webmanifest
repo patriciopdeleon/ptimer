@@ -1,7 +1,7 @@
 {
   "id": "./",
-  "name": "ptimer",
-  "short_name": "ptimer",
+  "name": "pTimer",
+  "short_name": "pTimer",
   "description": "One to five simple timers. Tap to start, pause, and repeat.",
   "lang": "en",
   "start_url": "./",
