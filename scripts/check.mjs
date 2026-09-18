@@ -26,8 +26,10 @@ assert.ok(appBuffer.length > 0, 'dist/app.js must not be empty');
 assert.ok(stylesheetBuffer.length > 0, 'dist/style.css must not be empty');
 assert.match(index, /<title>ptimer<\/title>/, 'The document title must be ptimer');
 assert.match(index, /href="manifest\.webmanifest"/, 'index.html must link the web app manifest');
-assert.match(index, /src="app\.js"/, 'index.html must load app.js');
-assert.match(index, /href="style\.css"/, 'index.html must load style.css');
+const appAsset = index.match(/src="(app\.js(?:\?[^\"]*)?)"/)?.[1];
+const stylesheetAsset = index.match(/href="(style\.css(?:\?[^\"]*)?)"/)?.[1];
+assert.ok(appAsset, 'index.html must load app.js');
+assert.ok(stylesheetAsset, 'index.html must load style.css');
 
 assert.equal(manifest.name, 'ptimer');
 assert.equal(manifest.short_name, 'ptimer');
@@ -49,8 +51,8 @@ for (const icon of manifest.icons) {
 const cachedAssets = [
   './',
   './index.html',
-  './style.css',
-  './app.js',
+  `./${stylesheetAsset}`,
+  `./${appAsset}`,
   './manifest.webmanifest',
   ...manifest.icons.map((icon) => `./${icon.src}`),
   './icons/apple-touch-icon.png?v=6',

@@ -34,18 +34,16 @@ const checkmarkIcon = `
 
 const loopIcon = `
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-    <path d="M18 8a7 7 0 0 0-12-2L4 8" />
-    <path d="M4 4v4h4" />
-    <path d="M6 16a7 7 0 0 0 12 2l2-2" />
-    <path d="M20 20v-4h-4" />
+    <path d="m17 2 4 4-4 4" />
+    <path d="M3 11V9a3 3 0 0 1 3-3h15" />
+    <path d="m7 22-4-4 4-4" />
+    <path d="M21 13v2a3 3 0 0 1-3 3H3" />
   </svg>`;
 
 const cascadeIcon = `
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-    <path d="M5 7h12" />
-    <path d="m14 4 3 3-3 3" />
-    <path d="M7 17h12" />
-    <path d="m10 14-3 3 3 3" />
+    <path d="M12 4v16" />
+    <path d="m8 11 4 4 4-4" />
   </svg>`;
 
 function readStorage(key) {
@@ -127,6 +125,8 @@ let tickInterval = null;
 
 const timersContainer = document.querySelector('#timers');
 const soundButton = document.querySelector('#sound');
+const paneCountButton = document.querySelector('#pane-count-toggle');
+const paneMenu = document.querySelector('#pane-menu');
 const announcements = document.querySelector('#announcements');
 
 timersContainer.innerHTML = timers
@@ -151,12 +151,6 @@ timersContainer.innerHTML = timers
             </label>
           </div>
           <div class="editor-options">
-            <div class="pane-count editor-control" role="group" aria-label="Number of timer panes">
-              ${Array.from(
-                { length: MAX_TIMER_COUNT },
-                (_, countIndex) => `<button class="count-option" type="button" data-count="${countIndex + 1}" aria-label="Show ${countIndex + 1} timer ${countIndex === 0 ? 'pane' : 'panes'}">${countIndex + 1}</button>`,
-              ).join('')}
-            </div>
             <button class="setting-toggle loop-toggle editor-control" type="button" aria-label="Loop timer" title="Loop timer">${loopIcon}</button>
             <button class="setting-toggle cascade-toggle editor-control" type="button" aria-label="Start next timer when finished" title="Cascade to next timer">${cascadeIcon}</button>
           </div>
@@ -175,16 +169,18 @@ function visibleSeconds(timer) {
   return timer.state === 'ready' ? timer.duration : Math.ceil(timer.remainingMs / 1_000);
 }
 
+function renderPaneControls() {
+  paneMenu.querySelectorAll('.pane-option').forEach((button) => {
+    button.setAttribute('aria-pressed', String(Number(button.dataset.count) === activeTimerCount));
+  });
+  paneCountButton.setAttribute('aria-label', `${activeTimerCount} timer panes. Choose a different count.`);
+}
+
 function renderEditorControls(index) {
   const timer = timers[index];
   const element = timerElements[index];
   const loopButton = element.querySelector('.loop-toggle');
   const cascadeButton = element.querySelector('.cascade-toggle');
-
-  element.querySelectorAll('.count-option').forEach((button) => {
-    const selected = Number(button.dataset.count) === activeTimerCount;
-    button.setAttribute('aria-pressed', String(selected));
-  });
 
   loopButton.setAttribute('aria-pressed', String(timer.loop));
   cascadeButton.setAttribute('aria-pressed', String(timer.cascade));
@@ -313,7 +309,10 @@ function tick() {
   timers.forEach((timer, index) => {
     if (timer.state !== 'running') return;
 
-    timer.remainingMs = Math.max(0, timer.deadline - now);
+    timer.remainingMs = Math.max(
+      0,
+      Math.min(timer.duration * 1_000, timer.deadline - now),
+    );
     if (timer.remainingMs === 0) finishTimer(index);
     else renderTimer(index);
   });
@@ -362,6 +361,7 @@ function setActiveTimerCount(count) {
 
   const previousEditingIndex = editingIndex;
   const editorWillBeHidden = previousEditingIndex !== null && previousEditingIndex >= count;
+  if (editorWillBeHidden && !applyInlineEditor(previousEditingIndex)) return false;
   if (editorWillBeHidden) closeInlineEditor(previousEditingIndex);
 
   activeTimerCount = count;
@@ -374,8 +374,10 @@ function setActiveTimerCount(count) {
     else renderTimer(index);
   });
 
+  renderPaneControls();
   saveSettings();
   if (editorWillBeHidden) openInlineEditor(count - 1);
+  return true;
 }
 
 function closeInlineEditor(index) {
@@ -493,15 +495,6 @@ timerElements.forEach((element, index) => {
     saveInlineEditor(index);
   });
 
-  element.querySelectorAll('.count-option').forEach((button) => {
-    button.addEventListener('click', () => {
-      const count = Number(button.dataset.count);
-      if (count === activeTimerCount) return;
-      if (!applyInlineEditor(index)) return;
-      setActiveTimerCount(count);
-    });
-  });
-
   loopButton.addEventListener('click', () => {
     timers[index].loop = !timers[index].loop;
     renderEditorControls(index);
@@ -537,6 +530,43 @@ timerElements.forEach((element, index) => {
 });
 
 setActiveTimerCount(activeTimerCount);
+
+function setPaneMenuOpen(open) {
+  paneMenu.hidden = !open;
+  paneCountButton.setAttribute('aria-expanded', String(open));
+}
+
+paneCountButton.addEventListener('click', () => {
+  setPaneMenuOpen(paneMenu.hidden);
+});
+
+paneMenu.addEventListener('click', (event) => {
+  const option = event.target instanceof Element ? event.target.closest('.pane-option') : null;
+  if (!option) return;
+
+  const count = Number(option.dataset.count);
+  if (count !== activeTimerCount && !setActiveTimerCount(count)) return;
+  setPaneMenuOpen(false);
+  paneCountButton.focus();
+});
+
+document.addEventListener('click', (event) => {
+  if (
+    !paneMenu.hidden &&
+    event.target instanceof Element &&
+    !event.target.closest('.pane-picker')
+  ) {
+    setPaneMenuOpen(false);
+  }
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && !paneMenu.hidden) {
+    event.preventDefault();
+    setPaneMenuOpen(false);
+    paneCountButton.focus();
+  }
+});
 
 // A tap on the edited pane commits its value. Controls on other panes keep
 // working without closing the editor.

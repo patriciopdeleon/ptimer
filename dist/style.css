@@ -130,7 +130,8 @@ main {
 }
 
 .edit,
-.sound {
+.sound,
+.pane-count-toggle {
   position: relative;
   display: grid;
   place-items: center;
@@ -144,7 +145,8 @@ main {
 }
 
 .edit::before,
-.sound::before {
+.sound::before,
+.pane-count-toggle::before {
   position: absolute;
   z-index: 0;
   top: 50%;
@@ -158,7 +160,8 @@ main {
 }
 
 .edit svg,
-.sound svg {
+.sound svg,
+.pane-count-toggle svg {
   position: relative;
   z-index: 1;
   width: 20px;
@@ -168,11 +171,51 @@ main {
   stroke-linejoin: round;
 }
 
-.sound {
+.global-controls {
   position: fixed;
   z-index: 5;
   right: 18px;
   bottom: max(18px, env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pane-picker,
+.pane-menu {
+  display: flex;
+  align-items: center;
+}
+
+.pane-picker {
+  gap: 4px;
+}
+
+.pane-menu {
+  gap: 2px;
+}
+
+.pane-menu[hidden] {
+  display: none;
+}
+
+.pane-option {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: #ffffff38;
+  color: #292c30;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.pane-option[aria-pressed='true'] {
+  background: #292c30;
+  color: #f5f6f7;
 }
 
 .timer-main[hidden],
@@ -244,23 +287,13 @@ main {
   z-index: 2;
   bottom: 12px;
   left: 50%;
-  display: grid;
-  grid-template-columns: repeat(2, 32px);
+  display: flex;
   justify-content: center;
   gap: 6px;
-  width: min(220px, calc(100% - 16px));
+  width: auto;
   transform: translateX(-50%);
 }
 
-.pane-count {
-  display: grid;
-  grid-column: 1 / -1;
-  grid-template-columns: repeat(5, minmax(24px, 1fr));
-  gap: 2px;
-  width: 100%;
-}
-
-.count-option,
 .setting-toggle {
   display: grid;
   place-items: center;
@@ -286,22 +319,15 @@ main {
   stroke-linejoin: round;
 }
 
-.count-option[aria-pressed='true'],
+.loop-toggle svg,
+.cascade-toggle svg {
+  width: 19px;
+  height: 19px;
+}
+
 .setting-toggle[aria-pressed='true'] {
   background: #292c30;
   color: #f5f6f7;
-}
-
-@container (min-width: 280px) {
-  .editor-options {
-    display: flex;
-    width: auto;
-  }
-
-  .pane-count {
-    display: grid;
-    width: 150px;
-  }
 }
 
 .sr-only {
@@ -318,16 +344,17 @@ main {
 
 @media (hover: hover) and (pointer: fine) {
   .edit:hover::before,
-  .sound:hover::before {
+  .sound:hover::before,
+  .pane-count-toggle:hover::before {
     background: #ffffff38;
   }
 
-  .count-option:hover,
+  .pane-option:hover,
   .setting-toggle:hover {
     background: #ffffff52;
   }
 
-  .count-option[aria-pressed='true']:hover,
+  .pane-option[aria-pressed='true']:hover,
   .setting-toggle[aria-pressed='true']:hover {
     background: #35393e;
   }
@@ -352,7 +379,7 @@ main {
     right: 12px;
   }
 
-  .sound {
+  .global-controls {
     right: 12px;
     bottom: max(12px, env(safe-area-inset-bottom));
   }

@@ -10,10 +10,26 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=6">
   <link rel="icon" type="image/png" href="icons/icon-192.png?v=6">
-  <link rel="stylesheet" href="style.css"><script src="app.js" defer></script>
+  <link rel="stylesheet" href="style.css?v=29"><script src="app.js?v=29" defer></script>
 </head>
 <body>
-  <button id="sound" class="sound" aria-pressed="true" aria-label="Sound on"></button>
+  <div class="global-controls">
+    <div class="pane-picker">
+      <div id="pane-menu" class="pane-menu" role="group" aria-label="Number of timer panes" hidden>
+        <button class="pane-option" type="button" data-count="1" aria-label="Show 1 timer pane">1</button>
+        <button class="pane-option" type="button" data-count="2" aria-label="Show 2 timer panes">2</button>
+        <button class="pane-option" type="button" data-count="3" aria-label="Show 3 timer panes">3</button>
+        <button class="pane-option" type="button" data-count="4" aria-label="Show 4 timer panes">4</button>
+        <button class="pane-option" type="button" data-count="5" aria-label="Show 5 timer panes">5</button>
+      </div>
+      <button id="pane-count-toggle" class="pane-count-toggle" type="button" aria-label="Choose number of timer panes" aria-expanded="false" aria-controls="pane-menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+          <path d="M5 6h14M5 12h14M5 18h14" />
+        </svg>
+      </button>
+    </div>
+    <button id="sound" class="sound" aria-pressed="true" aria-label="Sound on"></button>
+  </div>
   <main id="timers" aria-label="Repeat timers"></main>
   <div id="announcements" class="sr-only" role="status" aria-live="polite"></div>
 </body>
