@@ -1,11 +1,12 @@
 # ptimer
 
-Three minimal, independent repeat timers. Defaults are 1, 3, and 5 minutes, with custom durations saved on your device.
+One to five minimal, independent repeat timers. The default three are 1, 3, and 5 minutes, with custom durations and settings saved on your device.
 
 - Tap to start, pause, or resume.
 - Double-tap to reset.
 - On completion, the timer shows zero for one second, then restores its preset.
-- Use the pencil to edit minutes and seconds directly on the timer, then tap outside the number fields within that timer’s pane, tap the checkmark, or press Enter to save. The speaker toggles sound.
+- Use the pencil to edit minutes and seconds directly on the timer, choose how many panes are visible, loop a timer, or cascade into the next timer. A cascade on the last visible timer wraps to the first.
+- Tap outside the number fields within that timer’s pane, tap the checkmark, or press Enter to save. The speaker toggles sound.
 
 ## Run locally
 

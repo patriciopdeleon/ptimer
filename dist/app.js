@@ -2,16 +2,22 @@ const DEFAULT_TIMERS = [
   { name: 'A little moment', duration: 60 },
   { name: 'Find your rhythm', duration: 180 },
   { name: 'Take your time', duration: 300 },
+  { name: 'Settle in', duration: 600 },
+  { name: 'Stay with it', duration: 900 },
 ];
 
 const STORAGE_KEYS = {
   presets: 'ptimer-presets',
   legacyPresets: 'tap-presets',
+  timerCount: 'ptimer-count',
   sound: 'ptimer-sound',
   legacySound: 'tap-sound',
 };
 
 const MAX_DURATION_SECONDS = 59_999;
+const MIN_TIMER_COUNT = 1;
+const MAX_TIMER_COUNT = 5;
+const DEFAULT_TIMER_COUNT = 3;
 const DOUBLE_TAP_DELAY_MS = 320;
 const COMPLETION_DELAY_MS = 1_000;
 const TICK_INTERVAL_MS = 100;
@@ -24,6 +30,22 @@ const pencilIcon = `
 const checkmarkIcon = `
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
     <path d="m5 12 4 4L19 6" />
+  </svg>`;
+
+const loopIcon = `
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+    <path d="M18 8a7 7 0 0 0-12-2L4 8" />
+    <path d="M4 4v4h4" />
+    <path d="M6 16a7 7 0 0 0 12 2l2-2" />
+    <path d="M20 20v-4h-4" />
+  </svg>`;
+
+const cascadeIcon = `
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+    <path d="M5 7h12" />
+    <path d="m14 4 3 3-3 3" />
+    <path d="M7 17h12" />
+    <path d="m10 14-3 3 3 3" />
   </svg>`;
 
 function readStorage(key) {
@@ -62,10 +84,22 @@ function validPreset(candidate, fallback) {
     candidate.duration > 0 &&
     candidate.duration <= MAX_DURATION_SECONDS
   ) {
-    return { name: candidate.name.slice(0, 24), duration: candidate.duration };
+    return {
+      name: candidate.name.slice(0, 24),
+      duration: candidate.duration,
+      loop: candidate.loop === true,
+      cascade: candidate.cascade === true,
+    };
   }
 
-  return { ...fallback };
+  return { ...fallback, loop: false, cascade: false };
+}
+
+function readTimerCount() {
+  const stored = Number(readStorage(STORAGE_KEYS.timerCount));
+  return Number.isInteger(stored) && stored >= MIN_TIMER_COUNT && stored <= MAX_TIMER_COUNT
+    ? stored
+    : DEFAULT_TIMER_COUNT;
 }
 
 function readSoundPreference() {
@@ -86,6 +120,7 @@ const timers = DEFAULT_TIMERS.map((fallback, index) => {
 });
 
 let soundEnabled = readSoundPreference();
+let activeTimerCount = readTimerCount();
 let audioContext = null;
 let editingIndex = null;
 let tickInterval = null;
@@ -115,6 +150,16 @@ timersContainer.innerHTML = timers
               <input class="edit-seconds" aria-label="Seconds" inputmode="numeric" type="text" pattern="[0-9]{1,2}" maxlength="2" required autocomplete="off" enterkeyhint="done">
             </label>
           </div>
+          <div class="editor-options">
+            <div class="pane-count editor-control" role="group" aria-label="Number of timer panes">
+              ${Array.from(
+                { length: MAX_TIMER_COUNT },
+                (_, countIndex) => `<button class="count-option" type="button" data-count="${countIndex + 1}" aria-label="Show ${countIndex + 1} timer ${countIndex === 0 ? 'pane' : 'panes'}">${countIndex + 1}</button>`,
+              ).join('')}
+            </div>
+            <button class="setting-toggle loop-toggle editor-control" type="button" aria-label="Loop timer" title="Loop timer">${loopIcon}</button>
+            <button class="setting-toggle cascade-toggle editor-control" type="button" aria-label="Start next timer when finished" title="Cascade to next timer">${cascadeIcon}</button>
+          </div>
         </form>
       </section>`,
   )
@@ -128,6 +173,26 @@ function formatTime(seconds) {
 
 function visibleSeconds(timer) {
   return timer.state === 'ready' ? timer.duration : Math.ceil(timer.remainingMs / 1_000);
+}
+
+function renderEditorControls(index) {
+  const timer = timers[index];
+  const element = timerElements[index];
+  const loopButton = element.querySelector('.loop-toggle');
+  const cascadeButton = element.querySelector('.cascade-toggle');
+
+  element.querySelectorAll('.count-option').forEach((button) => {
+    const selected = Number(button.dataset.count) === activeTimerCount;
+    button.setAttribute('aria-pressed', String(selected));
+  });
+
+  loopButton.setAttribute('aria-pressed', String(timer.loop));
+  cascadeButton.setAttribute('aria-pressed', String(timer.cascade));
+  loopButton.setAttribute('aria-label', `${timer.loop ? 'Disable' : 'Enable'} loop for timer ${index + 1}`);
+  cascadeButton.setAttribute(
+    'aria-label',
+    `${timer.cascade ? 'Disable' : 'Enable'} cascade from timer ${index + 1} to the next timer`,
+  );
 }
 
 function renderTimer(index) {
@@ -147,8 +212,9 @@ function renderTimer(index) {
   };
 
   element.dataset.state = timer.state;
+  if (seconds >= 6_000) element.dataset.longTime = '';
+  else delete element.dataset.longTime;
   time.textContent = formatTime(seconds);
-  time.style.fontSize = seconds >= 6_000 ? 'clamp(46px, 6.5vw, 110px)' : '';
   mainButton.setAttribute(
     'aria-label',
     `${timer.name}, ${formatTime(seconds)}. ${actions[timer.state]}. Double tap to reset.`,
@@ -159,6 +225,7 @@ function renderTimer(index) {
     ? 0
     : 1 - timer.remainingMs / (timer.duration * 1_000);
   progress.style.width = `${Math.max(0, Math.min(100, elapsedRatio * 100))}%`;
+  renderEditorControls(index);
 }
 
 function unlockAudio() {
@@ -205,6 +272,21 @@ function syncTicker() {
   }
 }
 
+function startTimer(index, { restart = false } = {}) {
+  if (index < 0 || index >= activeTimerCount) return false;
+  if (editingIndex === index && !saveInlineEditor(index, { focus: false })) return false;
+
+  const timer = timers[index];
+  window.clearTimeout(timer.resetTimeout);
+  timer.resetTimeout = null;
+  if (restart || timer.state !== 'paused') timer.remainingMs = timer.duration * 1_000;
+  timer.deadline = Date.now() + timer.remainingMs;
+  timer.state = 'running';
+  renderTimer(index);
+  syncTicker();
+  return true;
+}
+
 function finishTimer(index) {
   const timer = timers[index];
   timer.state = 'done';
@@ -214,8 +296,14 @@ function finishTimer(index) {
   syncTicker();
   announcements.textContent = `${timer.name} finished. Tap to start again.`;
 
+  const nextIndex = (index + 1) % activeTimerCount;
+  const cascadeRestartsSelf = timer.cascade && nextIndex === index;
+  if (timer.cascade && !cascadeRestartsSelf) startTimer(nextIndex, { restart: true });
+
   timer.resetTimeout = window.setTimeout(() => {
-    if (timer.state === 'done') resetTimer(index);
+    if (timer.state !== 'done') return;
+    if (timer.loop || cascadeRestartsSelf) startTimer(index, { restart: true });
+    else resetTimer(index);
   }, COMPLETION_DELAY_MS);
 }
 
@@ -241,14 +329,11 @@ function toggleTimer(index) {
 
   if (timer.state === 'running') {
     timer.state = 'paused';
+    renderTimer(index);
+    syncTicker();
   } else {
-    if (timer.state !== 'paused') timer.remainingMs = timer.duration * 1_000;
-    timer.deadline = Date.now() + timer.remainingMs;
-    timer.state = 'running';
+    startTimer(index);
   }
-
-  renderTimer(index);
-  syncTicker();
 }
 
 function resetTimer(index) {
@@ -261,9 +346,36 @@ function resetTimer(index) {
   syncTicker();
 }
 
-function savePresets() {
-  const presets = timers.map(({ name, duration }) => ({ name, duration }));
+function saveSettings() {
+  const presets = timers.map(({ name, duration, loop, cascade }) => ({
+    name,
+    duration,
+    loop,
+    cascade,
+  }));
   writeStorage(STORAGE_KEYS.presets, JSON.stringify(presets));
+  writeStorage(STORAGE_KEYS.timerCount, String(activeTimerCount));
+}
+
+function setActiveTimerCount(count) {
+  if (!Number.isInteger(count) || count < MIN_TIMER_COUNT || count > MAX_TIMER_COUNT) return;
+
+  const previousEditingIndex = editingIndex;
+  const editorWillBeHidden = previousEditingIndex !== null && previousEditingIndex >= count;
+  if (editorWillBeHidden) closeInlineEditor(previousEditingIndex);
+
+  activeTimerCount = count;
+  timersContainer.style.setProperty('--timer-count', String(count));
+  timersContainer.dataset.count = String(count);
+
+  timerElements.forEach((element, index) => {
+    element.hidden = index >= count;
+    if (element.hidden) resetTimer(index);
+    else renderTimer(index);
+  });
+
+  saveSettings();
+  if (editorWillBeHidden) openInlineEditor(count - 1);
 }
 
 function closeInlineEditor(index) {
@@ -276,7 +388,7 @@ function closeInlineEditor(index) {
   renderTimer(index);
 }
 
-function saveInlineEditor(index) {
+function applyInlineEditor(index) {
   const element = timerElements[index];
   const form = element.querySelector('.inline-editor');
   const minutesInput = element.querySelector('.edit-minutes');
@@ -299,10 +411,17 @@ function saveInlineEditor(index) {
   if (!form.reportValidity()) return false;
 
   timers[index].duration = minutes * 60 + seconds;
-  closeInlineEditor(index);
   resetTimer(index);
-  savePresets();
-  element.querySelector('.edit').focus();
+  saveSettings();
+  return true;
+}
+
+function saveInlineEditor(index, { focus = true } = {}) {
+  const element = timerElements[index];
+  if (!applyInlineEditor(index)) return false;
+
+  closeInlineEditor(index);
+  if (focus) element.querySelector('.edit').focus();
   return true;
 }
 
@@ -349,6 +468,8 @@ timerElements.forEach((element, index) => {
   const editButton = element.querySelector('.edit');
   const editor = element.querySelector('.inline-editor');
   const editorInputs = element.querySelectorAll('.inline-editor input');
+  const loopButton = element.querySelector('.loop-toggle');
+  const cascadeButton = element.querySelector('.cascade-toggle');
 
   mainButton.addEventListener('click', (event) => {
     const now = performance.now();
@@ -370,6 +491,27 @@ timerElements.forEach((element, index) => {
   editor.addEventListener('submit', (event) => {
     event.preventDefault();
     saveInlineEditor(index);
+  });
+
+  element.querySelectorAll('.count-option').forEach((button) => {
+    button.addEventListener('click', () => {
+      const count = Number(button.dataset.count);
+      if (count === activeTimerCount) return;
+      if (!applyInlineEditor(index)) return;
+      setActiveTimerCount(count);
+    });
+  });
+
+  loopButton.addEventListener('click', () => {
+    timers[index].loop = !timers[index].loop;
+    renderEditorControls(index);
+    saveSettings();
+  });
+
+  cascadeButton.addEventListener('click', () => {
+    timers[index].cascade = !timers[index].cascade;
+    renderEditorControls(index);
+    saveSettings();
   });
 
   editorInputs.forEach((input) => {
@@ -394,6 +536,8 @@ timerElements.forEach((element, index) => {
   renderTimer(index);
 });
 
+setActiveTimerCount(activeTimerCount);
+
 // A tap on the edited pane commits its value. Controls on other panes keep
 // working without closing the editor.
 function isEditedPaneBackground(target) {
@@ -401,7 +545,7 @@ function isEditedPaneBackground(target) {
     editingIndex !== null &&
     target instanceof Element &&
     timerElements[editingIndex].contains(target) &&
-    !target.closest('.inline-field')
+    !target.closest('.inline-field, .editor-control')
   );
 }
 
@@ -482,7 +626,7 @@ document.addEventListener('keydown', (event) => {
     return;
   }
 
-  if (/^[123]$/.test(event.key)) {
+  if (/^[1-5]$/.test(event.key) && Number(event.key) <= activeTimerCount) {
     event.preventDefault();
     toggleTimer(Number(event.key) - 1);
   }
@@ -495,11 +639,11 @@ if (document.modelContext?.registerTool) {
     Promise.resolve(
       document.modelContext.registerTool({
         name: 'control_timer',
-        description: 'Start, pause, resume or reset one of the three repeat timers.',
+        description: 'Start, pause, resume or reset one of the visible repeat timers.',
         inputSchema: {
           type: 'object',
           properties: {
-            timer: { type: 'integer', minimum: 1, maximum: 3 },
+            timer: { type: 'integer', minimum: 1, maximum: 5 },
             action: { type: 'string', enum: ['start', 'pause', 'resume', 'reset'] },
           },
           required: ['timer', 'action'],
@@ -510,7 +654,7 @@ if (document.modelContext?.registerTool) {
           if (
             !Number.isInteger(timer) ||
             timer < 1 ||
-            timer > 3 ||
+            timer > activeTimerCount ||
             !['start', 'pause', 'resume', 'reset'].includes(action)
           ) {
             throw new Error('Invalid timer or action');
@@ -523,8 +667,7 @@ if (document.modelContext?.registerTool) {
           tick();
           if (action === 'reset') resetTimer(index);
           else if (action === 'start') {
-            resetTimer(index);
-            toggleTimer(index);
+            startTimer(index, { restart: true });
           } else if (
             (action === 'pause' && selected.state === 'running') ||
             (action === 'resume' && selected.state === 'paused')
