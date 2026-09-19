@@ -322,6 +322,50 @@ main {
   }
 }
 
+#timers[data-count='4'] .tile-top > button,
+body[data-timer-count='4'] .pane-count-toggle,
+body[data-timer-count='4'] .sound {
+  width: 36px;
+  height: 36px;
+  padding: 8px;
+}
+
+#timers[data-count='4'] .tile-top > button::before,
+body[data-timer-count='4'] .pane-count-toggle::before,
+body[data-timer-count='4'] .sound::before {
+  width: 28px;
+  height: 28px;
+}
+
+#timers[data-count='4'] .tile-top > button svg,
+body[data-timer-count='4'] .pane-count-toggle svg,
+body[data-timer-count='4'] .sound svg {
+  width: 18px;
+  height: 18px;
+}
+
+#timers[data-count='5'] .tile-top > button,
+body[data-timer-count='5'] .pane-count-toggle,
+body[data-timer-count='5'] .sound {
+  width: 28px;
+  height: 28px;
+  padding: 4px;
+}
+
+#timers[data-count='5'] .tile-top > button::before,
+body[data-timer-count='5'] .pane-count-toggle::before,
+body[data-timer-count='5'] .sound::before {
+  width: 24px;
+  height: 24px;
+}
+
+#timers[data-count='5'] .tile-top > button svg,
+body[data-timer-count='5'] .pane-count-toggle svg,
+body[data-timer-count='5'] .sound svg {
+  width: 14px;
+  height: 14px;
+}
+
 @media (max-width: 700px) {
   main {
     grid-template-rows: repeat(var(--timer-count, 3), minmax(0, 1fr));

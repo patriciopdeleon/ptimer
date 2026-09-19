@@ -363,6 +363,7 @@ function setActiveTimerCount(count) {
   if (editorWillBeHidden) closeInlineEditor(previousEditingIndex);
 
   activeTimerCount = count;
+  document.body.dataset.timerCount = String(count);
   timersContainer.style.setProperty('--timer-count', String(count));
   timersContainer.dataset.count = String(count);
 
