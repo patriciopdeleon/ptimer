@@ -135,9 +135,9 @@ timersContainer.innerHTML = timers
       <section class="timer" data-state="ready">
         <div class="progress"></div>
         <div class="tile-top">
-          <button class="edit" type="button" aria-label="Edit timer ${index + 1}">${pencilIcon}</button>
           <button class="setting-toggle loop-toggle timer-control" type="button" aria-label="Loop timer" title="Loop timer">${loopIcon}</button>
           <button class="setting-toggle cascade-toggle timer-control" type="button" aria-label="Start next timer when finished" title="Cascade to next timer">${cascadeIcon}</button>
+          <button class="edit" type="button" aria-label="Edit timer ${index + 1}">${pencilIcon}</button>
         </div>
         <button class="timer-main" type="button">
           <span class="time"></span>
