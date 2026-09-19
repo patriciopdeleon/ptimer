@@ -127,11 +127,16 @@ main {
   z-index: 3;
   top: max(18px, env(safe-area-inset-top));
   right: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
 }
 
 .edit,
 .sound,
-.pane-count-toggle {
+.pane-count-toggle,
+.setting-toggle {
   position: relative;
   display: grid;
   place-items: center;
@@ -146,7 +151,8 @@ main {
 
 .edit::before,
 .sound::before,
-.pane-count-toggle::before {
+.pane-count-toggle::before,
+.setting-toggle::before {
   position: absolute;
   z-index: 0;
   top: 50%;
@@ -161,7 +167,8 @@ main {
 
 .edit svg,
 .sound svg,
-.pane-count-toggle svg {
+.pane-count-toggle svg,
+.setting-toggle svg {
   position: relative;
   z-index: 1;
   width: 20px;
@@ -282,52 +289,8 @@ main {
   border-bottom-color: #242629;
 }
 
-.editor-options {
-  position: absolute;
-  z-index: 2;
-  bottom: 12px;
-  left: 50%;
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-  width: auto;
-  transform: translateX(-50%);
-}
-
-.setting-toggle {
-  display: grid;
-  place-items: center;
-  height: 32px;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: #ffffff26;
-  color: #292c30;
-  font-size: 13px;
-  font-variant-numeric: tabular-nums;
-}
-
-.setting-toggle {
-  width: 32px;
-}
-
-.setting-toggle svg {
-  width: 17px;
-  height: 17px;
-  stroke-width: 1.5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.loop-toggle svg,
-.cascade-toggle svg {
-  width: 19px;
-  height: 19px;
-}
-
-.setting-toggle[aria-pressed='true'] {
-  background: #292c30;
-  color: #f5f6f7;
+.setting-toggle[aria-pressed='false'] svg {
+  opacity: 0.42;
 }
 
 .sr-only {
@@ -345,17 +308,16 @@ main {
 @media (hover: hover) and (pointer: fine) {
   .edit:hover::before,
   .sound:hover::before,
-  .pane-count-toggle:hover::before {
+  .pane-count-toggle:hover::before,
+  .setting-toggle:hover::before {
     background: #ffffff38;
   }
 
-  .pane-option:hover,
-  .setting-toggle:hover {
+  .pane-option:hover {
     background: #ffffff52;
   }
 
-  .pane-option[aria-pressed='true']:hover,
-  .setting-toggle[aria-pressed='true']:hover {
+  .pane-option[aria-pressed='true']:hover {
     background: #35393e;
   }
 }
@@ -396,9 +358,6 @@ main {
     font-size: clamp(32px, 15vw, 90px);
   }
 
-  .editor-options {
-    bottom: 8px;
-  }
 }
 
 @supports (font-size: 1cqi) {

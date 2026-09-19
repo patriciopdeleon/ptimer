@@ -136,6 +136,8 @@ timersContainer.innerHTML = timers
         <div class="progress"></div>
         <div class="tile-top">
           <button class="edit" type="button" aria-label="Edit timer ${index + 1}">${pencilIcon}</button>
+          <button class="setting-toggle loop-toggle timer-control" type="button" aria-label="Loop timer" title="Loop timer">${loopIcon}</button>
+          <button class="setting-toggle cascade-toggle timer-control" type="button" aria-label="Start next timer when finished" title="Cascade to next timer">${cascadeIcon}</button>
         </div>
         <button class="timer-main" type="button">
           <span class="time"></span>
@@ -149,10 +151,6 @@ timersContainer.innerHTML = timers
             <label class="inline-field">
               <input class="edit-seconds" aria-label="Seconds" inputmode="numeric" type="text" pattern="[0-9]{1,2}" maxlength="2" required autocomplete="off" enterkeyhint="done">
             </label>
-          </div>
-          <div class="editor-options">
-            <button class="setting-toggle loop-toggle editor-control" type="button" aria-label="Loop timer" title="Loop timer">${loopIcon}</button>
-            <button class="setting-toggle cascade-toggle editor-control" type="button" aria-label="Start next timer when finished" title="Cascade to next timer">${cascadeIcon}</button>
           </div>
         </form>
       </section>`,
@@ -575,7 +573,7 @@ function isEditedPaneBackground(target) {
     editingIndex !== null &&
     target instanceof Element &&
     timerElements[editingIndex].contains(target) &&
-    !target.closest('.inline-field, .editor-control')
+    !target.closest('.inline-field, .timer-control')
   );
 }
 
